@@ -1,0 +1,786 @@
+package generate;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.security.*;
+import java.security.spec.*;
+import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.JLabel;
+import javax.swing.JTextPane;
+import javax.swing.*;
+import javax.swing.JComponent.*;
+import java.awt.Component.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.*;
+import java.io.*;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipEntry;
+import java.util.ArrayList;
+import com.borland.jbcl.layout.*;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
+import java.awt.event.MouseEvent;
+
+public class Frame1 extends JFrame {
+    JPanel contentPane;
+    String filename;
+    String filename1;
+    String filename2;
+    String filename3;
+    String filename4;
+    String filename5;
+    String filename10;
+    String filename11;
+    String type111;
+    int _key_;
+    byte [] key_size;
+    byte [] type1;
+    byte[] realSig;
+    byte[] Key;
+    String type;
+    byte[] sigToVerify;
+    PublicKey pubKey;
+    byte [] res;
+    com.borland.jbcl.layout.XYLayout xYLayout1 = new XYLayout();
+    javax.swing.JComboBox jComboBox1 = new JComboBox();
+    javax.swing.JComboBox jComboBox2 = new JComboBox();
+    JLabel jLabel1 = new JLabel();
+    JLabel jLabel2 = new JLabel();
+    JButton jButton3 = new JButton();
+    JButton jButton4 = new JButton();
+    JButton jButton5 = new JButton();
+    JButton jButton6 = new JButton();
+    JLabel jLabel3 = new JLabel();
+    JLabel jLabel4 = new JLabel();
+    JButton jButton7 = new JButton();
+    JButton jButton8 = new JButton();
+    JButton jButton9 = new JButton();
+    JButton jButton10 = new JButton();
+    JButton jButton11 = new JButton();
+    JButton jButton12 = new JButton();
+    JTextField jTextField2 = new JTextField();
+    JTextField jTextField3 = new JTextField();
+    JTextPane jTextPane1 = new JTextPane();
+    javax.swing.border.Border border1 = javax.swing.BorderFactory.
+                                        createLineBorder(Color.blue, 2);
+    javax.swing.border.Border border2 = javax.swing.BorderFactory.
+                                        createLineBorder(new java.awt.Color(172,
+            158, 173), 2);
+    javax.swing.border.Border border3 = javax.swing.BorderFactory.
+                                        createLineBorder(Color.gray, 2);
+    javax.swing.border.Border border4 = javax.swing.BorderFactory.
+                                        createLineBorder(Color.gray, 2);
+    JTextPane jTextPane2 = new JTextPane();
+    javax.swing.JProgressBar jProgressBar1 = new JProgressBar();
+    SecureRandom random;
+    KeyPair pair;
+    PrivateKey priv;
+    PublicKey pub;
+    Signature dsa;
+
+    javax.swing.border.TitledBorder titledBorder1 = new javax.swing.border.
+            TitledBorder("");
+    JTextPane jTextPane3 = new JTextPane();
+    JLabel jLabel5 = new JLabel();
+    public void messege (){
+    JOptionPane.showMessageDialog(this, "Підпис створено!", "Повідомлення!", 1);
+}
+
+public void messege1 (){
+    JOptionPane.showMessageDialog(this, "Результат верифікації підпису - позитивний!", "Верифікація підису!", 1);
+}
+
+public void messege2 (){
+    JOptionPane.showMessageDialog(this, "Результат верифікації підпису - негативний!", "Верифікація підису!", 0);
+}
+
+public void messege3 (){
+    JOptionPane.showMessageDialog(this, "Помилка створення підпису!", "Помилка!", 0);
+}
+
+public void messege4 (){
+    JOptionPane.showMessageDialog(this, "Помилка перевірки підпису!", "Помилка!", 0);
+}
+
+public class MyThread extends Thread {
+    public void run() {
+        try{
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            int result = jComboBox1.getSelectedIndex();
+            int result1 = jComboBox2.getSelectedIndex();
+            if (result == 0){_key_ = 512;}
+            if (result == 1){_key_ = 768;}
+            if (result == 2){_key_ = 1024;}
+            if (result1 == 0){type111 = "SHAwithDSA"; type = "SHAPRNG";}
+            if (result1 == 1){type111 = "SHA1withDSA"; type = "SHA1PRNG";}
+            /* Генерация ключей */
+            random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(_key_, random);
+            pair = keyGen.generateKeyPair();
+            priv = pair.getPrivate();
+            pub = pair.getPublic();
+            Key = pub.getEncoded();
+            /* Создание объекта класса Signature */
+            dsa = Signature.getInstance(type111, "SUN");
+            /* Инициализация частным ключом */
+            dsa.initSign(priv);
+            /* Чтение данных из файла "data". Вызов метода update() */
+            FileInputStream fis = new FileInputStream(filename);
+            BufferedInputStream bufin = new BufferedInputStream(fis);
+            byte[] buffer = new byte[1024];
+            int len;
+            while (bufin.available() != 0){
+                len = bufin.read(buffer);
+                dsa.update(buffer, 0, len);
+            }
+            bufin.close();
+            /* Генерация подписи */
+            realSig = dsa.sign();
+            messege();
+            jButton5.setEnabled(true);
+            jButton6.setEnabled(true);
+        }catch(Exception e){}
+    }
+}
+
+public class MyThread_new extends Thread {
+    public void run() {
+        try{
+            Signature sig = Signature.getInstance("SHA1withDSA", "SUN");
+            sig.initVerify(pubKey);
+            FileInputStream datafis = new FileInputStream(filename);
+            BufferedInputStream bufin = new BufferedInputStream(datafis);
+            byte[] buffer = new byte[1024];
+            int len;
+            while (bufin.available() != 0)
+            {
+                len = bufin.read(buffer);
+                sig.update(buffer, 0, len);
+            }
+            bufin.close();
+            //Верификация
+            boolean verifies = sig.verify(sigToVerify);
+            System.out.println("Signature verifies: " + verifies);
+            res = new byte [7];
+            if(verifies == true){
+                res[0]= 't';
+                res[1]= 'r';
+                res[2]= 'u';
+                res[3]= 'e';
+                messege1();
+                jTextPane3.setText("");
+                jTextPane3.setText("ПОЗИТИВНИЙ!!!");
+            }else{
+                res[0]= 'f';
+                res[1]= 'a';
+                res[2]= 'l';
+                res[3]= 's';
+                res[4]= 'e';
+                messege2();
+                jTextPane3.setText("");
+                jTextPane3.setText("НЕГАТИВНИЙ!!!");
+            }
+        jButton12.setEnabled(true);
+        }catch(Exception e){messege3 ();}
+    }
+}
+
+public class SimpleFileFilter extends javax.swing.filechooser.FileFilter {
+    String ext;
+    SimpleFileFilter(String ext){
+        this.ext=ext;
+    }
+    public boolean accept(File f){
+        if(f==null)
+            return false;
+        if(f.isDirectory()){
+            return true ;
+        }
+        else
+            return (f.getName().endsWith(ext));
+    }
+    /*
+         Описание фильтра, возникающее в строке фильтра
+    */
+    public String getDescription(){
+        return "Файл підпису (.sign)";
+    }
+}
+
+public class Simple1FileFilter extends javax.swing.filechooser.FileFilter {
+    String ext;
+    Simple1FileFilter(String ext){
+        this.ext=ext;
+    }
+    public boolean accept(File f){
+        if(f==null)
+            return false;
+        if(f.isDirectory()){
+            return true ;
+        }
+        else
+            return (f.getName().endsWith(ext));
+    }
+    /*
+         Описание фильтра, возникающее в строке фильтра
+    */
+    public String getDescription(){
+        return "Файл відкритого ключа (.pubk)";
+    }
+}
+
+public class Simple2FileFilter extends javax.swing.filechooser.FileFilter {
+    String ext;
+    Simple2FileFilter(String ext){
+        this.ext=ext;
+    }
+    public boolean accept(File f){
+        if(f==null)
+            return false;
+        if(f.isDirectory()){
+            return true ;
+        }
+        else
+            return (f.getName().endsWith(ext));
+    }
+    /*
+         Описание фильтра, возникающее в строке фильтра
+    */
+    public String getDescription(){
+        return "Файл результату превірки підпису (.txt)";
+    }
+}
+
+public class Simple10FileFilter extends javax.swing.filechooser.FileFilter {
+    String ext;
+    Simple10FileFilter(String ext){
+        this.ext=ext;
+    }
+    public boolean accept(File f){
+        if(f==null)
+            return false;
+        if(f.isDirectory()){
+            return true ;
+        }
+        else
+            return (f.getName().endsWith(ext));
+    }
+    /*
+         Описание фильтра, возникающее в строке фильтра
+    */
+    public String getDescription(){
+        return "Розмір ключа (.key)";
+    }
+}
+
+public class Simple11FileFilter extends javax.swing.filechooser.FileFilter {
+    String ext;
+    Simple11FileFilter(String ext){
+        this.ext=ext;
+    }
+    public boolean accept(File f){
+        if(f==null)
+            return false;
+        if(f.isDirectory()){
+            return true ;
+        }
+        else
+            return (f.getName().endsWith(ext));
+    }
+    /*
+         Описание фильтра, возникающее в строке фильтра
+    */
+    public String getDescription(){
+        return "Розмір ключа (.hesh)";
+    }
+}
+
+public static void saveToFile (byte[] info, String filename)
+    {
+          try
+          {
+                FileOutputStream fos = new FileOutputStream(filename);
+                fos.write(info);
+                fos.close();
+          }
+          catch (Exception e)
+          {
+                System.err.println("Caught exception " + e.toString());
+          }
+    }// saveToFile ()
+
+    public static byte[] readFromFile (String fileName)
+         {
+               byte[] info;
+               try
+               {
+                     FileInputStream fis = new FileInputStream(fileName);
+                     info = new byte[fis.available()];
+                     fis.read(info);
+                     fis.close();
+               }
+               catch (Exception e)
+               {
+                     System.err.println("Caught exception " + e.toString());
+                     info = new byte[0];
+               }
+               return(info);
+      }// copyFromFile ()
+
+public Frame1() {
+        try {
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            jbInit();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+private void jbInit() throws Exception {
+        contentPane = (JPanel) getContentPane();
+        contentPane.setLayout(xYLayout1);
+        this.getContentPane().setBackground(Color.blue);
+        this.setIconImage(null);
+        this.setResizable(false);
+        setSize(new Dimension(467, 426));
+        setTitle("DSA Tools");
+        contentPane.setBackground(Color.blue);
+        jLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 16));
+        jLabel1.setForeground(Color.yellow);
+        jLabel1.setText("Генарація підпису");
+        jLabel2.setFont(new java.awt.Font("Dialog", Font.BOLD, 16));
+        jLabel2.setForeground(Color.yellow);
+        jLabel2.setToolTipText("");
+        jLabel2.setText("Перевірка підпису");
+        jButton3.setText("Відкрити файл");
+        jButton3.addMouseListener(new Frame1_jButton3_mouseAdapter(this));
+        jButton3.addActionListener(new Frame1_jButton3_actionAdapter(this));
+        jButton4.setEnabled(false);
+        jButton4.setText("Згенерувати підпис");
+        jButton4.addActionListener(new Frame1_jButton4_actionAdapter(this));
+        jButton5.setEnabled(false);
+        jButton5.setText("Зберегти підпис");
+        jButton5.addActionListener(new Frame1_jButton5_actionAdapter(this));
+        jButton6.setEnabled(false);
+        jButton6.setText("Зберегти відкритий ключ");
+        jButton6.addActionListener(new Frame1_jButton6_actionAdapter(this));
+        jLabel3.setFont(new java.awt.Font("Dialog", Font.BOLD, 12));
+        jLabel3.setForeground(Color.yellow);
+        jLabel3.setToolTipText("");
+        jLabel3.setText("Виберіть розмір ключа: ");
+        jLabel4.setFont(new java.awt.Font("Dialog", Font.BOLD, 12));
+        jLabel4.setForeground(Color.yellow);
+        jLabel4.setText("Виберіть хеш-функцію: ");
+        jButton7.setText("Вихід");
+        jButton7.addActionListener(new Frame1_jButton7_actionAdapter(this));
+        jButton8.setText("Відкрити файл");
+        jButton8.addActionListener(new Frame1_jButton8_actionAdapter(this));
+        jButton9.setEnabled(false);
+        jButton9.setText("Відкрити підпис");
+        jButton9.addActionListener(new Frame1_jButton9_actionAdapter(this));
+        jButton10.setEnabled(false);
+        jButton10.setText("Відкрити ключ");
+        jButton10.addActionListener(new Frame1_jButton10_actionAdapter(this));
+        jButton11.setEnabled(false);
+        jButton11.setText("Перевірити");
+        jButton11.addActionListener(new Frame1_jButton11_actionAdapter(this));
+        jButton12.setEnabled(false);
+        jButton12.setToolTipText("");
+        jButton12.setText("Зберегти результат");
+        jButton12.addActionListener(new Frame1_jButton12_actionAdapter(this));
+        jTextField2.setForeground(Color.gray);
+        jTextField2.setCaretColor(Color.gray);
+        jTextField2.setDisabledTextColor(Color.gray);
+        jTextField2.setText("jTextField2");
+        jTextField2.addActionListener(new Frame1_jTextField2_actionAdapter(this));
+        jTextField3.setBackground(Color.gray);
+        jTextField3.setForeground(Color.gray);
+        jTextField3.setCaretColor(Color.gray);
+        jTextField3.setDisabledTextColor(Color.gray);
+        jTextField3.setText("jTextField3");
+        jTextPane1.setBackground(Color.blue);
+        jTextPane1.setEnabled(false);
+        jTextPane1.setFont(new java.awt.Font("Times New Roman", Font.PLAIN, 12));
+        jTextPane1.setForeground(Color.yellow);
+        jTextPane1.setBorder(BorderFactory.createLoweredBevelBorder());
+        jTextPane1.setMaximumSize(new Dimension(4, 20));
+        jTextPane2.setBackground(Color.blue);
+        jTextPane2.setEnabled(false);
+        jTextPane2.setFont(new java.awt.Font("Times New Roman", Font.PLAIN, 12));
+        jTextPane2.setForeground(Color.yellow);
+        jTextPane2.setBorder(BorderFactory.createLoweredBevelBorder());
+        jTextPane2.setText("");
+        jProgressBar1.setOrientation(JProgressBar.VERTICAL);
+        jProgressBar1.setBackground(UIManager.getColor("text"));
+        jProgressBar1.setEnabled(true);
+        jProgressBar1.setFont(new java.awt.Font("Dialog", Font.PLAIN, 12));
+        jProgressBar1.setForeground(Color.yellow);
+        jProgressBar1.setDebugGraphicsOptions(DebugGraphics.NONE_OPTION);
+        jProgressBar1.setInputVerifier(null);
+        jProgressBar1.setMaximum(5);
+        jProgressBar1.setMinimum(1);
+        jProgressBar1.setString("Генерація/Верифікація   цифрового   підпису");
+        jProgressBar1.setValue(0);
+        jProgressBar1.setStringPainted(true);
+        jTextPane3.setBackground(Color.blue);
+        jTextPane3.setEnabled(false);
+        jTextPane3.setFont(new java.awt.Font("Times New Roman", Font.BOLD, 18));
+        jTextPane3.setForeground(Color.yellow);
+        jTextPane3.setBorder(BorderFactory.createLoweredBevelBorder());
+        jTextPane3.setCaretColor(Color.yellow);
+        jTextPane3.setSelectedTextColor(Color.yellow);
+        jTextPane3.setSelectionColor(Color.yellow);
+        jTextPane3.setText("");
+        jLabel5.setBackground(Color.blue);
+        jLabel5.setFont(new java.awt.Font("Times New Roman", Font.BOLD, 14));
+        jLabel5.setForeground(Color.yellow);
+        jLabel5.setText("Результат перевірки підпису: ");
+        contentPane.add(jLabel3, new XYConstraints(6, 47, -1, -1));
+        contentPane.add(jLabel4, new XYConstraints(5, 77, -1, -1));
+        contentPane.add(jComboBox1, new XYConstraints(158, 50, 61, -1));
+        contentPane.add(jButton3, new XYConstraints(30, 108, 158, -1));
+        contentPane.add(jComboBox2, new XYConstraints(158, 77, 60, -1));
+        contentPane.add(jLabel1, new XYConstraints(2, 3, -1, 27));
+        contentPane.add(jTextField2, new XYConstraints(1, 36, 456, 2));
+        contentPane.add(jTextPane1, new XYConstraints(4, 143, 214, -1));
+        contentPane.add(jLabel2, new XYConstraints(243, 5, -1, 26));
+        contentPane.add(jTextField3, new XYConstraints(232, 1, 2, 35));
+        contentPane.add(jButton8, new XYConstraints(274, 46, 155, -1));
+        contentPane.add(jTextPane2, new XYConstraints(248, 80, 210, -1));
+        contentPane.add(jButton7, new XYConstraints(197, 348, 71, -1));
+        contentPane.add(jTextPane3, new XYConstraints(253, 294, 191, 30));
+        contentPane.add(jButton9, new XYConstraints(274, 149, 155, -1));
+        contentPane.add(jButton10, new XYConstraints(274, 180, 155, -1));
+        contentPane.add(jButton11, new XYConstraints(274, 208, 155, -1));
+        contentPane.add(jButton12, new XYConstraints(274, 238, 155, -1));
+        contentPane.add(jLabel5, new XYConstraints(251, 269, -1, 20));
+        contentPane.add(jButton4, new XYConstraints(29, 212, 159, -1));
+        contentPane.add(jButton5, new XYConstraints(29, 243, 160, -1));
+        contentPane.add(jButton6, new XYConstraints(29, 274, -1, -1));
+        contentPane.add(jProgressBar1, new XYConstraints(225, 42, 16, 296));
+        jComboBox1.addItem("512");
+        jComboBox1.addItem("768");
+        jComboBox1.addItem("1024");
+        jComboBox2.addItem("SHA");
+        jComboBox2.addItem("SHA1");
+        jButton7.setToolTipText("Вихід з програми.");
+        jButton3.setToolTipText("Відкрити файл для генерації підпису.");
+        jButton4.setToolTipText("Згенерувати підпис файлу.");
+        jButton5.setToolTipText("Зберегти згенерований підпис.");
+        jButton6.setToolTipText("Зберегти відкритий ключ.");
+        jButton8.setToolTipText("Відкрити файл для перевірки підпису.");
+        jButton9.setToolTipText("Відкрити файл з підписом.");
+        jButton10.setToolTipText("Відкрити файл з ключем.");
+        jButton11.setToolTipText("Перевірити автентичність підпису.");
+        jButton12.setToolTipText("Зберегти файл з результатом.");
+        jProgressBar1.setIndeterminate(true);
+    }
+
+    public void jTextField2_actionPerformed(ActionEvent e) {
+
+    }
+
+  public void jButton3_actionPerformed(ActionEvent e) {
+        try{
+            jButton4.setEnabled(false);
+            jButton5.setEnabled(false);
+            jButton6.setEnabled(false);
+            JFileChooser chooser = new JFileChooser();
+            JOptionPane.showMessageDialog(this, "Виберіть файл!", "Вибір файлу!", 1);
+            int r = chooser.showOpenDialog(this);
+            if (r == JFileChooser.APPROVE_OPTION) {
+                filename = chooser.getSelectedFile().getPath();
+                JOptionPane.showMessageDialog(this, "Файл вибрано!", "Вибір файлу!", 1);
+                jButton4.setEnabled(true);
+                jTextPane1.setText(filename);
+                jTextPane3.setText("");
+            }
+          }catch(Exception f){
+              System.err.println("Caught exception " + f.toString());
+              JOptionPane.showMessageDialog(this, "Помилка відкриття файлу!", "Помилка!", 0);
+          }
+    }
+
+  public void jButton4_actionPerformed(ActionEvent e) {
+        try{
+            MyThread t = new MyThread();
+            t.start();
+        }catch(Exception f){JOptionPane.showMessageDialog(this, "Помилка створення підпису!", "Помилка!", 0);}
+      }
+
+    public void jButton5_actionPerformed(ActionEvent e) {
+        try{
+        /* Сохранение подписи в файл "signature" */
+        JFileChooser chooser3 = new JFileChooser();
+        JOptionPane.showMessageDialog(this, "Збережіть підпис!", "Збереження підпису!", 1);
+        javax.swing.filechooser.FileFilter fileFilter=new SimpleFileFilter(".sign");
+        chooser3.addChoosableFileFilter(fileFilter);
+        chooser3.showSaveDialog(this);
+        filename3 = chooser3.getSelectedFile().getPath();
+        saveToFile (realSig,filename3 + ".sign");
+        JOptionPane.showMessageDialog(this, "Підпис збережено!", "Збереження підису!", 1);
+        }catch(Exception f){
+            JOptionPane.showMessageDialog(this, "Помилка збереження підпису!", "Помилка!", 0);
+        }
+    }
+
+    public void jButton6_actionPerformed(ActionEvent e) {
+        try{
+        /* Сохранение открытого ключа в файл "pubkey" */
+        JFileChooser chooser4= new JFileChooser();
+        JOptionPane.showMessageDialog(this, "Збережіть відкритий ключ!", "Збереження відкритого ключа!", 1);
+        javax.swing.filechooser.FileFilter fileFilter1 = new Simple1FileFilter(".pubk");
+        chooser4.addChoosableFileFilter(fileFilter1);
+        chooser4.showSaveDialog(this);
+        filename4 = chooser4.getSelectedFile().getPath();
+        saveToFile (Key, filename4 + ".pubk");
+        JOptionPane.showMessageDialog(this, "Відкритий ключ збережено!", "Збереження відкритого ключа!", 1);
+        jButton4.setEnabled(false);
+        jButton5.setEnabled(false);
+        jButton6.setEnabled(false);
+        jTextPane1.setText("");
+        }catch(Exception f){
+            JOptionPane.showMessageDialog(this, "Помилка збереження відкритого ключа!", "Помилка!", 0);
+        }
+    }
+
+    public void jButton3_mouseClicked(java.awt.event.MouseEvent e) {
+
+    }
+
+    public void jButton7_actionPerformed(ActionEvent e) {
+    System.exit(0);
+    }
+
+    public void jButton8_actionPerformed(ActionEvent e) {
+        try{
+            jButton9.setEnabled(false);
+            jButton10.setEnabled(false);
+            jButton11.setEnabled(false);
+            jButton12.setEnabled(false);
+            JFileChooser chooser = new JFileChooser();
+            JOptionPane.showMessageDialog(this, "Виберіть файл!", "Вибір файлу!", 1);
+            int r = chooser.showOpenDialog(this);
+            if (r == JFileChooser.APPROVE_OPTION) {
+                filename = chooser.getSelectedFile().getPath();
+                JOptionPane.showMessageDialog(this, "Файл вибрано!", "Вибір файлу!", 1);
+                jButton9.setEnabled(true);
+                jTextPane2.setText(filename);
+                jTextPane3.setText("");
+            }
+        }catch(Exception f){
+              System.err.println("Caught exception " + f.toString());
+              JOptionPane.showMessageDialog(this, "Помилка відкриття файлу!", "Помилка!", 0);}
+    }
+
+    public void jButton9_actionPerformed(ActionEvent e) {
+        try{
+                /* Чтение подписи из файла "signature" */
+                JFileChooser chooser2 = new JFileChooser();
+                JOptionPane.showMessageDialog(this, "Виберіть підпис!", "Читання підпису!", 1);
+                javax.swing.filechooser.FileFilter fileFilter=new SimpleFileFilter(".sign");
+                chooser2.addChoosableFileFilter(fileFilter);
+                chooser2.showOpenDialog(this);
+                filename2 = chooser2.getSelectedFile().getPath();
+                sigToVerify = readFromFile(filename2);
+                JOptionPane.showMessageDialog(this, "Підпис прочитано!", "Читання підпису!", 1);
+                jButton10.setEnabled(true);
+                jTextPane3.setText("");
+            }
+        catch(Exception f){JOptionPane.showMessageDialog(this, "Помилка відкриття файлу!", "Помилка!", 0);}
+    }
+
+    public void jButton10_actionPerformed(ActionEvent e) {
+        try{
+                /* Получение encoded public key из файла "pubkey" */
+                JFileChooser chooser1 = new JFileChooser();
+                JOptionPane.showMessageDialog(this, "Виберіть відкритий ключ!", "Вибір відкритого ключа!", 1);
+                javax.swing.filechooser.FileFilter fileFilter1 = new Simple1FileFilter(".pubk");
+                chooser1.addChoosableFileFilter(fileFilter1);
+                chooser1.showOpenDialog(this);
+                filename1 = chooser1.getSelectedFile().getPath();
+                JOptionPane.showMessageDialog(this, "Відкритий ключ вибрано!", "Вибір відкритого ключа!", 1);
+                byte[] encKey = readFromFile(filename1);
+                /* Создание спецификации ключа */
+                X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encKey);
+                /* Создание объектов Лунафсещкн и ЗгидшсЛун*/
+                KeyFactory keyFactory = KeyFactory.getInstance("DSA", "SUN");
+                pubKey = keyFactory.generatePublic(pubKeySpec);
+                jButton11.setEnabled(true);
+                jTextPane3.setText("");
+        }catch(Exception f){JOptionPane.showMessageDialog(this, "Помилка відкриття файлу!", "Помилка!", 0);}
+    }
+
+    public void jButton11_actionPerformed(ActionEvent e) {
+        try{
+            MyThread_new n = new MyThread_new();
+            n.start();
+        }catch(Exception f){JOptionPane.showMessageDialog(this, "Помилка перевірки підпису!", "Помилка!", 0);}
+    }
+
+    public void jButton12_actionPerformed(ActionEvent e) {
+        try{
+                /*Збереження файлу "result"*/
+                JFileChooser chooser5 = new JFileChooser();
+                JOptionPane.showMessageDialog(this, "Збережіть результат!", "Збереження результату!", 1);
+                javax.swing.filechooser.FileFilter fileFilter2 = new Simple2FileFilter(".txt");
+                chooser5.addChoosableFileFilter(fileFilter2);
+                chooser5.showSaveDialog(this);
+                filename5 = chooser5.getSelectedFile().getPath();
+                saveToFile (res, filename5 + ".txt");
+                JOptionPane.showMessageDialog(this, "Результат збережено!", "Збережено результати!", 1);
+                jButton9.setEnabled(false);
+                jButton10.setEnabled(false);
+                jButton11.setEnabled(false);
+                jButton12.setEnabled(false);
+                jTextPane2.setText("");
+                jTextPane3.setText("");
+        }catch(Exception f){JOptionPane.showMessageDialog(this, "Помилка збереження результату!", "Помилка!", 0);}
+    }
+}
+
+class Frame1_jButton12_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton12_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton12_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton11_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton11_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton11_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton10_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton10_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton10_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton9_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton9_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton9_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton8_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton8_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton8_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton7_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton7_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton7_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton6_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton6_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton6_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton5_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton5_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton5_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton4_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton4_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton4_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton3_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jButton3_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jButton3_actionPerformed(e);
+    }
+}
+
+class Frame1_jButton3_mouseAdapter extends java.awt.event.MouseAdapter {
+    private Frame1 adaptee;
+    Frame1_jButton3_mouseAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void mouseClicked(MouseEvent e) {
+
+        adaptee.jButton3_mouseClicked(e);
+    }
+}
+
+class Frame1_jTextField2_actionAdapter implements ActionListener {
+    private Frame1 adaptee;
+    Frame1_jTextField2_actionAdapter(Frame1 adaptee) {
+        this.adaptee = adaptee;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        adaptee.jTextField2_actionPerformed(e);
+    }
+}
+
